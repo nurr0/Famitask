@@ -32,3 +32,5 @@ class UserGroupRelation(models.Model):
 
     def __str__(self):
         return f'[{self.group}] - {self.user.username}'
+
+    

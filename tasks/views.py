@@ -5,8 +5,13 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import *
 
 
-class TaskListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = TaskSerializer
-    permission_classes = (AllowAny,)
-    # authentication_classes = [Allo, BasicAuthentication]
+class TaskList(generics.ListCreateAPIView):
     queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated] 
+
+
+class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated] 

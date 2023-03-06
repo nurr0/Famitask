@@ -1,30 +1,38 @@
-from rest_framework import generics
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import *
 
-
-class GroupCreateAPIView(generics.CreateAPIView):
+class GroupListCreateView(generics.ListCreateAPIView):
     serializer_class = GroupSerializer
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-
-class GroupAPIView(generics.RetrieveUpdateAPIView):
-    serializer_class = GroupSerializer
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_group = UserGroupRelation.objects.filter(user=self.request.user)
-        return Group.objects.filter(pk__in=user_group)
+        # Получить текущего пользователя
+        user = self.request.user
+
+        # Получить связанные с пользователем группы
+        user_groups = UserGroupRelation.objects.filter(user=user).select_related('group').values_list('group', flat=True)
+
+        # Получить объекты Group связанные с текущим пользователем
+        queryset = Group.objects.filter(pk__in=user_groups)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class UserGroupRelationCreateAPIView(generics.CreateAPIView):
-    serializer_class = UserGroupRelationSerializer
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-
-
+class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Group.objects.all()
