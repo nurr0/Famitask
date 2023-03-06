@@ -17,7 +17,7 @@ class GroupListCreateView(generics.ListCreateAPIView):
         user_groups = UserGroupRelation.objects.filter(user=user).select_related('group').values_list('group', flat=True)
 
         # Получить объекты Group связанные с текущим пользователем
-        queryset = Group.objects.filter(pk__in=user_groups)
+        queryset = Group.objects.filter(pk__in=user_groups, is_active=True)
 
         return queryset
 
@@ -35,4 +35,36 @@ class GroupListCreateView(generics.ListCreateAPIView):
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Group.objects.all()
+
+
+    def get_queryset(self):
+        # Получить текущего пользователя
+        user = self.request.user
+
+        # Получить связанные с пользователем группы
+        user_groups = UserGroupRelation.objects.filter(user=user).select_related('group').values_list('group', flat=True)
+
+        # Получить объекты Group связанные с текущим пользователем
+        queryset = Group.objects.filter(pk__in=user_groups, is_active=True)
+
+        return queryset
+
+
+class UserGroupRelationList(generics.ListAPIView):
+    serializer_class = UserGroupRelationSerializer
+
+    def get_queryset(self):
+        group_id = self.kwargs['group_id']
+        return UserGroupRelation.objects.filter(group_id=group_id).select_related('user')
+
+
+class UserGroupRelationDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = UserGroupRelationSerializer
+
+    def get_queryset(self):
+        relation_pk = self.kwargs['pk']
+        return UserGroupRelation.objects.filter(pk=relation_pk)
+
+
+class UserGroupRelationCreate(generics.CreateAPIView):
+    serializer_class = UserGroupRelationCreateSerializer

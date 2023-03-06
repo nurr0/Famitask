@@ -29,7 +29,7 @@ class UserGroupRelation(models.Model):
         verbose_name = 'Связь пользователя и группы'
         verbose_name_plural = 'Связи пользователей и групп'
         ordering = ['id']
-
+        unique_together = ('user', 'group',)
     def __str__(self):
         return f'[{self.group}] - {self.user.username}'
 

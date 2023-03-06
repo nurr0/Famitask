@@ -3,10 +3,24 @@ from rest_framework import serializers
 from .models import *
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username']
+
+
 class UserGroupRelationSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    
     class Meta:
         model = UserGroupRelation
-        fields = ['user']
+        fields = ['id', 'user', 'group']
+
+
+class UserGroupRelationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGroupRelation
+        fields = ['id', 'user', 'group']
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -20,8 +34,10 @@ class GroupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user
+        validated_data['is_active'] = True
 
         group = Group.objects.create(user_created=user, **validated_data)
         UserGroupRelation.objects.create(user=user, group=group)
 
         return group
+    
