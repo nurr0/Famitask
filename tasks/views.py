@@ -44,7 +44,7 @@ class ResponsibleOnTaskList(generics.ListAPIView):
 
     def get_queryset(self):
         task_id = self.kwargs.get('task_id')
-        queryset = ResponsibleOnTask.objects.filter(task_id=task_id)
+        queryset = ResponsibleOnTask.objects.select_related('responsible_user').filter(task_id=task_id)
         return queryset
 
 
