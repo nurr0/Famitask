@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import *
 
+
 class GroupListCreateView(generics.ListCreateAPIView):
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
@@ -14,7 +15,8 @@ class GroupListCreateView(generics.ListCreateAPIView):
         user = self.request.user
 
         # Получить связанные с пользователем группы
-        user_groups = UserGroupRelation.objects.filter(user=user).select_related('group').values_list('group', flat=True)
+        user_groups = UserGroupRelation.objects.filter(
+            user=user).select_related('group').values_list('group', flat=True)
 
         # Получить объекты Group связанные с текущим пользователем
         queryset = Group.objects.filter(pk__in=user_groups, is_active=True)
@@ -25,7 +27,8 @@ class GroupListCreateView(generics.ListCreateAPIView):
         serializer.save()
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer = self.get_serializer(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -36,13 +39,13 @@ class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_queryset(self):
         # Получить текущего пользователя
         user = self.request.user
 
         # Получить связанные с пользователем группы
-        user_groups = UserGroupRelation.objects.filter(user=user).select_related('group').values_list('group', flat=True)
+        user_groups = UserGroupRelation.objects.filter(
+            user=user).select_related('group').values_list('group', flat=True)
 
         # Получить объекты Group связанные с текущим пользователем
         queryset = Group.objects.filter(pk__in=user_groups, is_active=True)

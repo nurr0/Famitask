@@ -4,10 +4,14 @@ from django.db import models
 
 class Group(models.Model):
     name = models.CharField(max_length=50, verbose_name="Название группы")
-    description = models.TextField(max_length=600, blank=True, verbose_name="Описание")
-    is_active = models.BooleanField(default=True, blank=False, verbose_name="Активность")
-    user_created = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создатель группы")
-    date_created = models.DateField(auto_now_add=True, verbose_name="Дата создания")
+    description = models.TextField(
+        max_length=600, blank=True, verbose_name="Описание")
+    is_active = models.BooleanField(
+        default=True, blank=False, verbose_name="Активность")
+    user_created = models.ForeignKey(
+        User, on_delete=models.PROTECT, verbose_name="Создатель группы")
+    date_created = models.DateField(
+        auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
         verbose_name = 'Fam'
@@ -30,7 +34,6 @@ class UserGroupRelation(models.Model):
         verbose_name_plural = 'Связи пользователей и групп'
         ordering = ['id']
         unique_together = ('user', 'group',)
+
     def __str__(self):
         return f'[{self.group}] - {self.user.username}'
-
-    

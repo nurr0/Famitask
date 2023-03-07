@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserGroupRelationSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    
+
     class Meta:
         model = UserGroupRelation
         fields = ['id', 'user', 'group']
@@ -24,11 +24,13 @@ class UserGroupRelationCreateSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    user_group_relation = UserGroupRelationSerializer(many=True, read_only=True)
+    user_group_relation = UserGroupRelationSerializer(
+        many=True, read_only=True)
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'description', 'is_active', 'user_created', 'date_created', 'user_group_relation']
+        fields = ['id', 'name', 'description', 'is_active',
+                  'user_created', 'date_created', 'user_group_relation']
         read_only_fields = ['user_created']
 
     def create(self, validated_data):
@@ -40,4 +42,3 @@ class GroupSerializer(serializers.ModelSerializer):
         UserGroupRelation.objects.create(user=user, group=group)
 
         return group
-    

@@ -27,7 +27,8 @@ class SubTask(models.Model):
     group = models.ForeignKey(Group, verbose_name="Группа", on_delete=models.CASCADE)
     title = models.CharField(max_length=50, verbose_name="Название")
     description = models.TextField(max_length=500, verbose_name="Описание", blank=True)
-    time_created = models.DateTimeField(auto_created=True, verbose_name="Время создания")
+    time_created = models.DateTimeField(
+        auto_now_add=True, auto_created=True, verbose_name="Время создания")
     user_created = models.ForeignKey(User, verbose_name="Создатель задачи", on_delete=models.DO_NOTHING)
     deadline = models.DateTimeField(verbose_name="Крайний срок")
     is_done = models.BooleanField(verbose_name="Выполнено", default=False)
@@ -50,6 +51,7 @@ class ResponsibleOnTask(models.Model):
         verbose_name = 'Ответственный по задаче'
         verbose_name_plural = 'Ответственные по задачам'
         ordering = ['id']
+        unique_together = ('task', 'responsible_user',)
 
     def __str__(self):
         return f'{self.task} - {self.responsible_user.username}'
